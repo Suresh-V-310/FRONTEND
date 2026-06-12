@@ -1,5 +1,5 @@
-import { useState, useMemo } from 'react';
-import { Database, Table, Copy, Check, AlertCircle, Info, Terminal } from 'lucide-react';
+import { useState, useMemo, useRef, useEffect } from 'react';
+import { Database, Table, Copy, Check, AlertCircle, Info, Terminal, Maximize2, Minimize2 } from 'lucide-react';
 
 // Heuristic to check if a row looks like a new header
 const isLikelyHeader = (cells, currentHeaders) => {
@@ -191,7 +191,7 @@ const parseSQLOutput = (output) => {
  * SQLResultsTable component displays SQL execution outputs.
  * Offers a premium database GUI feel, similar to modern database clients.
  */
-const SQLResultsTable = ({ output }) => {
+const SQLResultsTable = ({ output, isFullScreen }) => {
   const [activeTab, setActiveTab] = useState('data'); // 'data' or 'messages'
   const [activeTableIdx, setActiveTableIdx] = useState(0);
   const [copiedIndex, setCopiedIndex] = useState(null); // null, 'json', or 'csv'
@@ -256,7 +256,11 @@ const SQLResultsTable = ({ output }) => {
   };
 
   return (
-    <div className="bg-white dark:bg-[#1e1e1e] border border-gray-200 dark:border-dark-border rounded-xl shadow-sm overflow-hidden flex flex-col w-full font-sans select-none animate-fadeIn">
+    <div
+      className={`bg-white dark:bg-[#1e1e1e] border border-gray-200 dark:border-dark-border rounded-xl shadow-sm overflow-hidden flex flex-col w-full font-sans select-none animate-fadeIn ${
+        isFullScreen ? 'h-full' : ''
+      }`}
+    >
       {/* Top Header / Tab Switcher */}
       <div className="bg-gray-50 dark:bg-[#18181c] border-b border-gray-200 dark:border-dark-border px-4 py-2 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
         <div className="flex gap-2">
@@ -344,7 +348,9 @@ const SQLResultsTable = ({ output }) => {
             </div>
 
             {/* Grid Table */}
-            <div className="overflow-x-auto overflow-y-auto max-h-[350px] w-full border-b border-gray-200 dark:border-dark-border relative">
+            <div className={`overflow-x-auto overflow-y-auto w-full border-b border-gray-200 dark:border-dark-border relative ${
+              isFullScreen ? 'flex-1' : 'max-h-[350px]'
+            }`}>
               <table className="w-full border-collapse text-left text-xs font-mono select-text">
                 <thead className="sticky top-0 z-10">
                   <tr className="bg-gray-100 dark:bg-[#2d2d30] border-b border-gray-300 dark:border-dark-border">
@@ -411,7 +417,9 @@ const SQLResultsTable = ({ output }) => {
         )}
 
         {currentTab === 'messages' && (
-          <div className="p-4 flex flex-col gap-3 max-h-[350px] overflow-y-auto bg-gray-50 dark:bg-[#151518] font-mono text-xs leading-relaxed">
+          <div className={`p-4 flex flex-col gap-3 overflow-y-auto bg-gray-50 dark:bg-[#151518] font-mono text-xs leading-relaxed ${
+            isFullScreen ? 'flex-1' : 'max-h-[350px]'
+          }`}>
             {logs.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-10 text-gray-400 dark:text-gray-500 font-sans gap-2">
                 <Info size={20} className="text-[#3b82f6]" />

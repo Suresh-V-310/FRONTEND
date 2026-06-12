@@ -12,6 +12,8 @@ function App() {
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/compiler" element={<Dashboard />} />
+            <Route path="/:langParam/online-compiler" element={<Dashboard />} />
+            <Route path="/:langParam/online-compiler/" element={<Dashboard />} />
             <Route path="/dashboard" element={<Navigate to="/" replace />} />
             <Route path="/login" element={<Navigate to="/" replace />} />
             <Route path="/signup" element={<Navigate to="/" replace />} />

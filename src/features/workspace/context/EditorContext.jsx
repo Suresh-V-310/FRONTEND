@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useCallback, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
   DEFAULT_CODE,
   DEFAULT_WEB_FILES,
@@ -28,6 +28,35 @@ const PROJECT_MAIN_FILES = {
   scala: 'Main.scala',
   sql: 'script.sql',
 };
+
+export const mapParamToLanguage = (param) => {
+  if (!param) return null;
+  let lang = param.toLowerCase().replace(/-programming$/, '');
+  if (lang === 'c++') lang = 'cpp';
+  const supported = [
+    'python', 'c', 'cpp', 'java', 'kotlin', 'csharp',
+    'javascript', 'typescript', 'go', 'rust', 'swift',
+    'ruby', 'php', 'r', 'matlab', 'dart', 'scala', 'sql', 'web'
+  ];
+  if (supported.includes(lang)) {
+    return lang;
+  }
+  return null;
+};
+
+export const mapLanguageToParam = (lang) => {
+  if (lang === 'cpp') return 'cpp-programming';
+  return `${lang}-programming`;
+};
+
+export function getLanguageFromPath(pathname) {
+  if (!pathname) return null;
+  const segments = pathname.split('/').filter(Boolean);
+  if (segments.length >= 2 && segments[1] === 'online-compiler') {
+    return mapParamToLanguage(segments[0]);
+  }
+  return null;
+}
 
 export const createTab = (language = 'c') => {
   const meta = getLanguageMeta(language);
@@ -81,6 +110,16 @@ export const createTab = (language = 'c') => {
 
 function getInitialWorkspace() {
   try {
+    const pathLang = getLanguageFromPath(window.location.pathname);
+    if (pathLang) {
+      const tab = createTab(pathLang);
+      return { tabs: [tab], activeTabId: tab.id };
+    }
+  } catch (e) {
+    // Ignore error
+  }
+
+  try {
     const params = new URLSearchParams(window.location.search);
     const lang = params.get('language');
     if (lang) {
@@ -113,43 +152,57 @@ export const EditorProvider = ({ children }) => {
   const [isRunning, setIsRunning] = useState(false);
   const [image, setImage] = useState(null);
 
-  const [searchParams, setSearchParams] = useSearchParams();
-  const langParam = searchParams.get('language');
+  const location = useLocation();
+  const navigate = useNavigate();
+  const pathLang = getLanguageFromPath(location.pathname);
 
-  // Sync URL query param -> state
+  // Sync URL path -> state
   useEffect(() => {
-    if (langParam) {
-      const existing = tabs.find((t) => t.language === langParam);
+    if (pathLang) {
+      const existing = tabs.find((t) => t.language === pathLang);
       if (existing) {
         if (activeTabId !== existing.id) {
           setActiveTabId(existing.id);
         }
       } else {
-        const newTab = createTab(langParam);
+        const newTab = createTab(pathLang);
         setTabs((prev) => {
-          if (prev.some((t) => t.language === langParam)) return prev;
+          if (prev.some((t) => t.language === pathLang)) return prev;
           return [...prev, newTab];
         });
         setActiveTabId(newTab.id);
       }
     }
-  }, [langParam, activeTabId, tabs]);
+  }, [pathLang, activeTabId, tabs]);
 
   const activeTab = tabs.find((t) => t.id === activeTabId) || tabs[0];
 
-  // Sync state -> URL query param
+  // Sync state -> URL path
   useEffect(() => {
-    if (activeTab && activeTab.language !== langParam) {
-      setSearchParams(
-        (prev) => {
-          const next = new URLSearchParams(prev);
-          next.set('language', activeTab.language);
-          return next;
-        },
-        { replace: true }
-      );
+    if (activeTab) {
+      const currentPathLang = getLanguageFromPath(location.pathname);
+      if (activeTab.language !== currentPathLang) {
+        const newParam = mapLanguageToParam(activeTab.language);
+        navigate(`/${newParam}/online-compiler/`, { replace: true });
+      }
     }
-  }, [activeTab, langParam, setSearchParams]);
+  }, [activeTab, location.pathname, navigate]);
+
+  // Handle redirects: query parameter (?language=) or legacy/root path -> SEO path
+  useEffect(() => {
+    const queryParams = new URLSearchParams(location.search);
+    const langQuery = queryParams.get('language');
+    const currentPathLang = getLanguageFromPath(location.pathname);
+
+    if (langQuery) {
+      const param = mapLanguageToParam(langQuery);
+      navigate(`/${param}/online-compiler/`, { replace: true });
+    } else if (!currentPathLang) {
+      const lang = activeTab?.language || 'c';
+      const param = mapLanguageToParam(lang);
+      navigate(`/${param}/online-compiler/`, { replace: true });
+    }
+  }, [location.pathname, location.search, activeTab, navigate]);
 
   const updateTabCode = useCallback((tabId, code) => {
     setTabs((prev) =>

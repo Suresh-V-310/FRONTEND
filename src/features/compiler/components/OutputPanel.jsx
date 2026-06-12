@@ -21,7 +21,9 @@ const OutputPanel = ({
 }) => {
   const scrollRef = useRef(null);
   const previewContainerRef = useRef(null);
+  const sqlContainerRef = useRef(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isSqlFullscreen, setIsSqlFullscreen] = useState(false);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -31,18 +33,14 @@ const OutputPanel = ({
 
   useEffect(() => {
     const handleFullscreenChange = () => {
-      const isCurrentlyFullscreen = !!(
+      const activeElement =
         document.fullscreenElement ||
         document.webkitFullscreenElement ||
         document.mozFullScreenElement ||
-        document.msFullscreenElement
-      ) && (
-        document.fullscreenElement === previewContainerRef.current ||
-        document.webkitFullscreenElement === previewContainerRef.current ||
-        document.mozFullScreenElement === previewContainerRef.current ||
-        document.msFullscreenElement === previewContainerRef.current
-      );
-      setIsFullscreen(isCurrentlyFullscreen);
+        document.msFullscreenElement;
+
+      setIsFullscreen(activeElement === previewContainerRef.current);
+      setIsSqlFullscreen(activeElement === sqlContainerRef.current);
     };
 
     document.addEventListener('fullscreenchange', handleFullscreenChange);
@@ -95,6 +93,27 @@ const OutputPanel = ({
     }
   };
 
+  const handleSqlFullscreen = () => {
+    const container = sqlContainerRef.current;
+    if (!container) return;
+
+    if (!isSqlFullscreen) {
+      if (container.requestFullscreen) {
+        container.requestFullscreen().catch((err) => {
+          toast.error(`Error attempting to enable fullscreen: ${err.message}`);
+        });
+      } else if (container.webkitRequestFullscreen) {
+        container.webkitRequestFullscreen().catch(() => {});
+      }
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen().catch(() => {});
+      } else if (document.webkitExitFullscreen) {
+        document.webkitExitFullscreen().catch(() => {});
+      }
+    }
+  };
+
 
   return (
     <div className="flex flex-col h-full bg-white dark:bg-[#1e1e1e] border-l border-[#e5e7eb] dark:border-dark-border">
@@ -113,6 +132,26 @@ const OutputPanel = ({
             >
               <Maximize2 size={14} className="text-[#2563eb] group-hover:scale-110 transition-transform" />
               <span>Full Screen</span>
+            </button>
+          )}
+          {language === 'sql' && output && (
+            <button
+              type="button"
+              onClick={handleSqlFullscreen}
+              className="clear-output-btn group"
+              title={isSqlFullscreen ? 'Exit Full Screen' : 'Full Screen'}
+            >
+              {isSqlFullscreen ? (
+                <>
+                  <Minimize2 size={14} className="text-[#2563eb] group-hover:scale-110 transition-transform" />
+                  <span>Exit Full Screen</span>
+                </>
+              ) : (
+                <>
+                  <Maximize2 size={14} className="text-[#2563eb] group-hover:scale-110 transition-transform" />
+                  <span>Full Screen</span>
+                </>
+              )}
             </button>
           )}
           <button
@@ -235,7 +274,27 @@ const OutputPanel = ({
               )}
               {output ? (
                 language === 'sql' ? (
-                  <SQLResultsTable output={output} />
+                  <div
+                    ref={sqlContainerRef}
+                    className={`w-full relative ${
+                      isSqlFullscreen
+                        ? 'h-screen bg-white dark:bg-[#1e1e1e] p-6 overflow-auto z-[9999]'
+                        : ''
+                    }`}
+                  >
+                    <SQLResultsTable output={output} isFullScreen={isSqlFullscreen} />
+                    {isSqlFullscreen && (
+                      <button
+                        type="button"
+                        onClick={handleExitFullscreen}
+                        className="absolute top-4 right-4 z-[10000] flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold text-white bg-red-600 hover:bg-red-700 active:scale-[0.98] transition-all duration-200 shadow-lg border border-red-700"
+                        title="Exit Full Screen"
+                      >
+                        <Minimize2 size={14} />
+                        <span>Exit Full Screen</span>
+                      </button>
+                    )}
+                  </div>
                 ) : (
                   <pre className="programiz-output whitespace-pre-wrap break-words m-0 text-[#1f2937] dark:text-gray-200 leading-relaxed font-mono">
                     {output}

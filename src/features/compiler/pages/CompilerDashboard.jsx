@@ -6,7 +6,7 @@ import FileTabs from '../../workspace/components/FileTabs.jsx';
 import CodeEditor from '../components/CodeEditor.jsx';
 import EditorToolbar from '../components/EditorToolbar.jsx';
 import OutputPanel from '../components/OutputPanel.jsx';
-import { useEditor } from '../../workspace/context/EditorContext.jsx';
+import { useEditor, mapLanguageToParam } from '../../workspace/context/EditorContext.jsx';
 import { useTheme } from '../../../shared/theme/ThemeContext.jsx';
 import { useRunCode } from '../hooks/useRunCode.js';
 import { usePanelResize } from '../hooks/usePanelResize.js';
@@ -360,7 +360,8 @@ const CompilerDashboard = () => {
         <LanguageSidebar
           activeLanguage={activeTab?.language || 'c'}
           onSelect={(language) => {
-            window.open(`/compiler?language=${language}&template=default`, '_blank');
+            const param = mapLanguageToParam(language);
+            window.open(`/${param}/online-compiler/`, '_blank');
           }}
         />
 
