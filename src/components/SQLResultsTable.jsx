@@ -4,25 +4,25 @@ import { Database, Table, Copy, Check, AlertCircle, Info, Terminal, Maximize2, M
 // Heuristic to check if a row looks like a new header
 const isLikelyHeader = (cells, currentHeaders) => {
   if (cells.length === 0) return false;
-  
+
   // Every cell must be a valid SQL identifier (alphanumeric + underscores, starting with letter/underscore)
   const isIdentifier = (val) => /^[a-zA-Z_][a-zA-Z0-9_]*$/.test(val);
   if (!cells.every(isIdentifier)) return false;
 
   // Permutation of current headers (header swap)
-  const isPermutation = cells.length === currentHeaders.length && 
+  const isPermutation = cells.length === currentHeaders.length &&
     cells.every(c => currentHeaders.some(h => h.toLowerCase() === c.toLowerCase()));
   if (isPermutation) return true;
 
   // Common SQL column names and aliases
   const commonColumns = new Set([
-    'id', 'name', 'title', 'count', 'sum', 'avg', 'min', 'max', 'total', 
-    'message', 'value', 'first_name', 'last_name', 'email', 'created_at', 
+    'id', 'name', 'title', 'count', 'sum', 'avg', 'min', 'max', 'total',
+    'message', 'value', 'first_name', 'last_name', 'email', 'created_at',
     'status', 'type', 'description', 'amount', 'price', 'quantity', 'date',
     'user_id', 'role', 'password', 'phone', 'address', 'city', 'country'
   ]);
 
-  const matchesCommonColumn = cells.some(cell => 
+  const matchesCommonColumn = cells.some(cell =>
     commonColumns.has(cell.toLowerCase())
   );
 
@@ -93,9 +93,9 @@ const parseSQLOutput = (output) => {
     }
 
     // Check for boundary lines (e.g. +------+ or ----------)
-    const isBoundary = /^[+\-=\s│┌┬┐├┼┤└┴┘─═┼╔╦╗╠╬╣╚╩╝\t:|]+$/.test(trimmed) && 
-                       (trimmed.includes('-') || trimmed.includes('═') || trimmed.includes('─') || trimmed.includes('+'));
-    
+    const isBoundary = /^[+\-=\s│┌┬┐├┼┤└┴┘─═┼╔╦╗╠╬╣╚╩╝\t:|]+$/.test(trimmed) &&
+      (trimmed.includes('-') || trimmed.includes('═') || trimmed.includes('─') || trimmed.includes('+'));
+
     if (isBoundary) {
       // If we are in a table block and find a separator of dashes, it confirms the previous line was the header.
       if (currentTable && currentTable.rows.length === 0) {
@@ -135,7 +135,7 @@ const parseSQLOutput = (output) => {
     }
 
     // Check if it looks like a standard command log (like "Table created", "Index dropped")
-    const isCommandLog = cells.length === 1 && 
+    const isCommandLog = cells.length === 1 &&
       /^(table|view|index|trigger) (created|dropped|altered)|(insert|update|delete) \d+|success/i.test(cells[0]);
 
     if (isCommandLog) {
@@ -242,7 +242,7 @@ const SQLResultsTable = ({ output, isFullScreen }) => {
     if (!activeTable) return;
     const csvContent = [
       activeTable.headers.join(','),
-      ...activeTable.rows.map(row => 
+      ...activeTable.rows.map(row =>
         row.map(cell => {
           const isNull = cell === undefined || cell === null || cell === '' || cell === 'NULL' || cell.toUpperCase() === 'NULL';
           const val = isNull ? 'NULL' : cell;
@@ -257,9 +257,8 @@ const SQLResultsTable = ({ output, isFullScreen }) => {
 
   return (
     <div
-      className={`bg-white dark:bg-[#1e1e1e] border border-gray-200 dark:border-dark-border rounded-xl shadow-sm overflow-hidden flex flex-col w-full font-sans select-none animate-fadeIn ${
-        isFullScreen ? 'h-full' : ''
-      }`}
+      className={`bg-white dark:bg-[#1e1e1e] border border-gray-200 dark:border-dark-border rounded-xl shadow-sm overflow-hidden flex flex-col w-full font-sans select-none animate-fadeIn ${isFullScreen ? 'h-full' : ''
+        }`}
     >
       {/* Top Header / Tab Switcher */}
       <div className="bg-gray-50 dark:bg-[#18181c] border-b border-gray-200 dark:border-dark-border px-4 py-2 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
@@ -267,11 +266,10 @@ const SQLResultsTable = ({ output, isFullScreen }) => {
           {hasTables && (
             <button
               onClick={() => setActiveTab('data')}
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                currentTab === 'data'
-                  ? 'bg-[#2563eb] text-white shadow-sm'
-                  : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5'
-              }`}
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${currentTab === 'data'
+                ? 'bg-[#2563eb] text-white shadow-sm'
+                : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5'
+                }`}
             >
               <Database size={14} />
               Data Output
@@ -279,11 +277,10 @@ const SQLResultsTable = ({ output, isFullScreen }) => {
           )}
           <button
             onClick={() => setActiveTab('messages')}
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-              currentTab === 'messages'
-                ? 'bg-[#2563eb] text-white shadow-sm'
-                : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5'
-            }`}
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${currentTab === 'messages'
+              ? 'bg-[#2563eb] text-white shadow-sm'
+              : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5'
+              }`}
           >
             <Terminal size={14} />
             Console Messages {logs.length > 0 && `(${logs.length})`}
@@ -306,11 +303,10 @@ const SQLResultsTable = ({ output, isFullScreen }) => {
                   <button
                     key={idx}
                     onClick={() => setActiveTableIdx(idx)}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[11px] font-medium transition-all border ${
-                      currentTableIdx === idx
-                        ? 'bg-white dark:bg-[#252526] border-gray-200 dark:border-dark-border text-[#2563eb] dark:text-blue-400 font-semibold shadow-xs'
-                        : 'bg-transparent border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
-                    }`}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[11px] font-medium transition-all border ${currentTableIdx === idx
+                      ? 'bg-white dark:bg-[#252526] border-gray-200 dark:border-dark-border text-[#2563eb] dark:text-blue-400 font-semibold shadow-xs'
+                      : 'bg-transparent border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
+                      }`}
                   >
                     <Table size={12} />
                     Result Grid {idx + 1}
@@ -348,9 +344,8 @@ const SQLResultsTable = ({ output, isFullScreen }) => {
             </div>
 
             {/* Grid Table */}
-            <div className={`overflow-x-auto overflow-y-auto w-full border-b border-gray-200 dark:border-dark-border relative ${
-              isFullScreen ? 'flex-1' : 'max-h-[350px]'
-            }`}>
+            <div className={`overflow-x-auto overflow-y-auto w-full border-b border-gray-200 dark:border-dark-border relative ${isFullScreen ? 'flex-1' : 'max-h-[350px]'
+              }`}>
               <table className="w-full border-collapse text-left text-xs font-mono select-text">
                 <thead className="sticky top-0 z-10">
                   <tr className="bg-gray-100 dark:bg-[#2d2d30] border-b border-gray-300 dark:border-dark-border">
@@ -374,11 +369,10 @@ const SQLResultsTable = ({ output, isFullScreen }) => {
                   {activeTable.rows.map((row, rowIdx) => (
                     <tr
                       key={rowIdx}
-                      className={`hover:bg-[#3b82f6]/10 dark:hover:bg-[#3b82f6]/15 transition-colors duration-100 ${
-                        rowIdx % 2 === 0
-                          ? 'bg-white dark:bg-[#1e1e1e]'
-                          : 'bg-gray-50/30 dark:bg-[#232326]'
-                      }`}
+                      className={`hover:bg-[#3b82f6]/10 dark:hover:bg-[#3b82f6]/15 transition-colors duration-100 ${rowIdx % 2 === 0
+                        ? 'bg-white dark:bg-[#1e1e1e]'
+                        : 'bg-gray-50/30 dark:bg-[#232326]'
+                        }`}
                     >
                       {row.map((cell, colIdx) => {
                         const cellStr = cell === undefined ? '' : String(cell);
@@ -388,11 +382,10 @@ const SQLResultsTable = ({ output, isFullScreen }) => {
                         return (
                           <td
                             key={colIdx}
-                            className={`px-3 py-2 break-all border-r border-gray-200 dark:border-[#2a2a2d] last:border-r-0 ${
-                              isNull
-                                ? 'text-gray-400 dark:text-gray-500 italic font-sans font-medium'
-                                : 'text-gray-800 dark:text-gray-300'
-                            }`}
+                            className={`px-3 py-2 break-all border-r border-gray-200 dark:border-[#2a2a2d] last:border-r-0 ${isNull
+                              ? 'text-gray-400 dark:text-gray-500 italic font-sans font-medium'
+                              : 'text-gray-800 dark:text-gray-300'
+                              }`}
                             style={{
                               minWidth: `${Math.max(columnWidths[colIdx] * 8 + 32, 80)}px`,
                             }}
@@ -417,9 +410,8 @@ const SQLResultsTable = ({ output, isFullScreen }) => {
         )}
 
         {currentTab === 'messages' && (
-          <div className={`p-4 flex flex-col gap-3 overflow-y-auto bg-gray-50 dark:bg-[#151518] font-mono text-xs leading-relaxed ${
-            isFullScreen ? 'flex-1' : 'max-h-[350px]'
-          }`}>
+          <div className={`p-4 flex flex-col gap-3 overflow-y-auto bg-gray-50 dark:bg-[#151518] font-mono text-xs leading-relaxed ${isFullScreen ? 'flex-1' : 'max-h-[350px]'
+            }`}>
             {logs.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-10 text-gray-400 dark:text-gray-500 font-sans gap-2">
                 <Info size={20} className="text-[#3b82f6]" />
@@ -454,7 +446,6 @@ const SQLResultsTable = ({ output, isFullScreen }) => {
           </div>
         )}
       </div>
-
       {/* Footer Info */}
       <div className="bg-gray-50 dark:bg-[#18181c] border-t border-gray-200 dark:border-dark-border px-4 py-2 flex items-center justify-between text-[10px] text-gray-500 dark:text-gray-400 font-sans select-none">
         <div className="flex items-center gap-1.5">
