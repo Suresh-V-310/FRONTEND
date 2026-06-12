@@ -1,0 +1,22 @@
+/** Sidebar language icons and labels */
+export const SIDEBAR_LANGUAGES = [
+  { key: 'python', name: 'Python', abbr: 'Py', color: '#3776ab', textClass: 'text-[#3776ab]' },
+  { key: 'c', name: 'C', abbr: 'C', color: '#00599c', textClass: 'text-[#00599c]' },
+  { key: 'cpp', name: 'C++', abbr: 'C++', color: '#00599c', textClass: 'text-[#00599c]' },
+  { key: 'java', name: 'Java', abbr: 'Jv', color: '#e76f00', textClass: 'text-[#e76f00]' },
+  { key: 'kotlin', name: 'Kotlin', abbr: 'Kt', color: '#7f52ff', textClass: 'text-[#7f52ff]' },
+  { key: 'csharp', name: 'C#', abbr: 'C#', color: '#68217a', textClass: 'text-[#68217a]' },
+  { key: 'javascript', name: 'JavaScript', abbr: 'JS', color: '#b8860b', textClass: 'text-[#b8860b]' },
+  { key: 'typescript', name: 'TypeScript', abbr: 'TS', color: '#3178c6', textClass: 'text-[#3178c6]' },
+  { key: 'go', name: 'Go', abbr: 'Go', color: '#00add8', textClass: 'text-[#00add8]' },
+  { key: 'rust', name: 'Rust', abbr: 'Rs', color: '#b7410e', textClass: 'text-[#b7410e]' },
+  { key: 'swift', name: 'Swift', abbr: 'Sw', color: '#f05138', textClass: 'text-[#f05138]' },
+  { key: 'ruby', name: 'Ruby', abbr: 'Rb', color: '#cc342d', textClass: 'text-[#cc342d]' },
+  { key: 'php', name: 'PHP', abbr: 'PHP', color: '#777bb4', textClass: 'text-[#777bb4]' },
+  { key: 'r', name: 'R', abbr: 'R', color: '#198abf', textClass: 'text-[#198abf]' },
+  { key: 'matlab', name: 'MATLAB', abbr: 'M', color: '#e16723', textClass: 'text-[#e16723]' },
+  { key: 'dart', name: 'Dart', abbr: 'Dt', color: '#0175c2', textClass: 'text-[#0175c2]' },
+  { key: 'scala', name: 'Scala', abbr: 'Sc', color: '#dc322f', textClass: 'text-[#dc322f]' },
+  { key: 'sql', name: 'SQL', abbr: 'SQL', color: '#336791', textClass: 'text-[#336791]' },
+  { key: 'web', name: 'Web (HTML + CSS + JavaScript)', abbr: 'Web', color: '#e34c26', textClass: 'text-[#e34c26]' },
+];
